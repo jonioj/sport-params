@@ -11,6 +11,9 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict
 
+
+
+
 def read_signal_raw(name: str, source: str) -> pd.DataFrame:
 
     POLAR_PATH = Path('../Data/08032023_radom/Polar')
@@ -22,7 +25,7 @@ def read_signal_raw(name: str, source: str) -> pd.DataFrame:
 
     elif source == 'pneum':
         path = PNEUM_PATH / f"{name}.DAT"
-        signal = pd.read_csv(path, sep=';')
+        signal = pd.read_csv(path, sep=';', header=None)
 
     else:
         print("Source not recognized. Use 'polar' or 'pneum'.")
@@ -80,3 +83,19 @@ def preprocess_polar_signal(signal: np.ndarray, config: Dict[str, float]) -> np.
     filtered_signal = filtfilt(b, a, filtered_signal)
     
     return filtered_signal
+
+def get_cpet_time(cpet_signal):
+    return cpet_signal.iloc[-1,0]
+
+
+def get_cpet_lens(good_polar_recovery_ids):
+    files = pd.read_csv('files.csv', sep = '\t')
+    i = 0
+    cpet_lens = []
+    while i < len(good_polar_recovery_ids):
+        cpet_id = files[files['polar_recovery'] == good_polar_recovery_ids[i]]['pneum_cpet'].values[0]
+        cpet_signal = read_signal_raw(cpet_id, 'pneum')
+        cpet_lens.append(get_cpet_time(cpet_signal))
+        i+=1
+        
+    return cpet_lens
