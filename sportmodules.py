@@ -99,3 +99,48 @@ def get_cpet_lens(good_polar_recovery_ids):
         i+=1
         
     return cpet_lens
+
+
+def get_RR_peaks(signal):
+    peaks, _ = find_peaks(signal, height=500, distance=20)
+    return peaks
+
+def plot_ppg_RR(signal, RR, signal_label='PPG Signal', rr_label='R-R Peaks', title='PPG Signal Processed with RR'):
+    fig, ax = plt.subplots()
+    
+    ax.plot(signal, label=signal_label)
+    ax.plot(RR, signal[RR], "x", label=rr_label, color='red')
+    ax.axhline(0, linestyle='--', color='gray', linewidth=0.8)
+    
+    ax.set_title(title)
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Amplitude')
+    ax.legend()
+    ax.grid(True)
+    
+    plt.show()
+    
+def get_HR_from_RR(RR, config):
+    """
+    Calculate heart rate (HR) from R-R intervals.
+
+    Parameters:
+    RR (array-like): Array of R-R interval indices.
+    config (dict): Configuration dictionary containing 'fs' (sampling frequency).
+
+    Returns:
+    np.ndarray: Array of heart rate values in beats per minute (bpm).
+    """
+    if len(RR) < 2:
+        raise ValueError("RR interval array must contain at least two elements.")
+    
+    rr_intervals = np.diff(RR)  # Calculate differences between consecutive R-R intervals
+    sampling_frequency = config['fs']
+    
+    # Calculate heart rate in beats per minute (bpm)
+    hr_seconds = rr_intervals / sampling_frequency
+    heart_rate = 60 / hr_seconds
+    
+    return heart_rate
+
+
