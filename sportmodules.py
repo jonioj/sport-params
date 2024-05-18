@@ -143,4 +143,29 @@ def get_HR_from_RR(RR, config):
     
     return heart_rate
 
+def calculate_hrv_from_rest(RR):
+    """
+    Calculate HRV metrics (SDNN and RMSSD) from R-R intervals.
+
+    Parameters:
+    RR (array-like): Array of R-R interval indices.
+
+    Returns:
+    dict: Dictionary containing HRV metrics 'SDNN' and 'RMSSD'.
+    """
+    if len(RR) < 2:
+        raise ValueError("RR interval array must contain at least two elements.")
+    
+    # Calculate successive R-R intervals
+    rr_intervals = np.diff(RR)
+    
+    # Calculate SDNN (Standard Deviation of NN intervals)
+    sdnn = np.std(rr_intervals, ddof=1)  # ddof=1 for sample standard deviation
+    
+    # Calculate RMSSD (Root Mean Square of Successive Differences)
+    successive_differences = np.diff(rr_intervals)
+    rmssd = np.sqrt(np.mean(successive_differences ** 2))
+    
+    return {'SDNN': sdnn, 'RMSSD': rmssd}
+
 
