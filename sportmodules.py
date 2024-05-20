@@ -10,7 +10,7 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd
 from pathlib import Path
 from typing import Dict
-
+from scipy.stats import entropy
 
 
 
@@ -102,8 +102,8 @@ def get_cpet_lens(good_polar_recovery_ids):
 
 
 def get_RR_peaks(signal):
-    peaks, _ = find_peaks(signal, height=500, distance=20)
-    return peaks
+    peaks, h = find_peaks(signal, height=500, distance=20)
+    return peaks, h
 
 def plot_ppg_RR(signal, RR, signal_label='PPG Signal', rr_label='R-R Peaks', title='PPG Signal Processed with RR'):
     fig, ax = plt.subplots()
@@ -167,5 +167,8 @@ def calculate_hrv_from_rest(RR):
     rmssd = np.sqrt(np.mean(successive_differences ** 2))
     
     return {'SDNN': sdnn, 'RMSSD': rmssd}
+
+def get_entropy(signal):
+    return entropy(signal)
 
 
