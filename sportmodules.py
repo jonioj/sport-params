@@ -1,12 +1,8 @@
-import os
 import matplotlib.pyplot as plt
-import neurokit2 as nk
 import numpy as np
 from scipy.signal import butter
 from scipy.signal import filtfilt
 from scipy.signal import find_peaks
-import numpy as np
-from sklearn.linear_model import LinearRegression
 import pandas as pd
 from pathlib import Path
 from typing import Dict
@@ -171,4 +167,45 @@ def calculate_hrv_from_rest(RR):
 def get_entropy(signal):
     return entropy(signal)
 
+def get_rel_bp(filtered_signal, peak_distance=20, peak_height=400, window_size=20):
+    """
+    Calculate relative blood pressure (BP) from a filtered signal using peak and valley detection, followed by moving average smoothing.
+    
+    Parameters:
+    filtered_signal (array-like): The input signal from which to calculate relative BP.
+    peak_distance (int): Minimum distance between peaks to be considered separate peaks. Default is 20.
+    peak_height (float): Minimum height of peaks to be considered valid. Default is 400.
+    window_size (int): Window size for moving average smoothing. Default is 20.
+    
+    Returns:
+    pd.Series: Smoothed relative BP values.
+    """
+    # Find peaks and valleys
+    peaks, _ = find_peaks(filtered_signal, distance=peak_distance, height=peak_height)
+    valleys, _ = find_peaks(-filtered_signal, distance=peak_distance, height=peak_height)
+    
+    # Align peaks and valleys
+    if len(peaks) == 0 or len(valleys) == 0:
+        raise ValueError("No valid peaks or valleys found in the signal.")
+
+    if peaks[0] > valleys[0]:
+        valleys = valleys[1:]  # Remove the first valley if it precedes the first peak
+    if len(peaks) > len(valleys):
+        peaks = peaks[:-1]  # Remove the last peak if there's an unmatched peak
+    
+    # Calculate relative BP (difference between peaks and valleys)
+    rel_bp = filtered_signal[peaks] - filtered_signal[valleys]
+    
+    # Convert to pandas Series for rolling operation
+    rel_bp_series = pd.Series(rel_bp)
+    
+    # Apply moving average smoothing
+    smoothed_rel_bp_series = rel_bp_series.rolling(window=window_size, center=True).mean()
+    
+    return smoothed_rel_bp_series
+
+# Example usage:
+# filtered_signal = np.array([...])  # Replace with your actual signal data
+# smoothed_rel_bp = get_rel_bp(filtered_signal)
+# print(smoothed_rel_bp)
 
