@@ -3,7 +3,7 @@ import sportmodules as sm
 import features as feat
 import matplotlib.pyplot as plt
 
-good_polar_recovery_ids = ["HH270","HH276","HH279","HH282"]
+good_polar_recovery_ids = ["HH270", "HH276", "HH279", "HH282"]
 
 config = {
     "fs": 130,
@@ -17,29 +17,25 @@ cpet_lens = sm.get_cpet_lens(good_polar_recovery_ids)
 features = []
 
 
-# Assuming good_polar_recovery_ids and config are defined elsewhere
-# Pre-allocate a list with a known size to avoid dynamic resizing during append operations
 features = [None] * len(cpet_lens)
-
-# Loop through indices and process data
+# %%
 for i in range(len(cpet_lens)):
     # Read and slice the signal in one step to avoid intermediate steps
     polar_ppg = sm.read_signal_raw(good_polar_recovery_ids[i], 'polar').iloc[1000:20000, 3]
-    
+
     # Process the polar signal
     filtered_signal = sm.preprocess_polar_signal(polar_ppg, config)
-    
+    # get relative BP
+    rel_bp = sm.get_rel_bp(filtered_signal)
     # Calculate features from the filtered signal
-    data = feat.calculate_ppg_features(filtered_signal, good_polar_recovery_ids[i],config)
-    
+    ppg_features = feat.calculate_ppg_features(filtered_signal, good_polar_recovery_ids[i], config)
+    # information_features =
+    # causal_features =
     # Store the result in the pre-allocated list
-    features[i] = data
-
-
+    features[i] = ppg_features
 
 
 features = pd.DataFrame(features)
 features['cpet_lens'] = cpet_lens
-features.to_csv("data/data.csv", index = False)
+features.to_csv("data/data.csv", index=False)
 # %%
-

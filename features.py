@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.mlab import psd
 from scipy.integrate import simpson
-import statsmodels.api as sm
+import statsmodels.api as sma
 from statsmodels.tsa.stattools import grangercausalitytests
 import pandas as pd
 
