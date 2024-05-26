@@ -16,6 +16,8 @@ In this file we define all the functions needed to create feature vector for eac
 
 Here we create models, test and optimize the features.
 
+
+# RUN 
 0. Change signals path in "sportmodules.py", download "files.csv" in the source dir.
-1. Run script.py to get generate features.
+1. Run script.py to generate features.
 2. Run experiment.py
